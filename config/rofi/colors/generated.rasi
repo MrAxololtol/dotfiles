@@ -1,0 +1,10 @@
+/* default palette; colorChange overwrites this on wallpaper change */
+* {
+    background:     #160f0f;
+    background-alt: #2a2228;
+    foreground:     #d8cfd5;
+    selected:       #6a294f;
+    selected-fg:    #d8cfd5;
+    active:         #60b444;
+    urgent:         #f48359;
+}

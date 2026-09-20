@@ -1,0 +1,53 @@
+{
+    "logo": {
+        "type": "file",
+        "source": "~/.config/fastfetch/nazuna.txt",
+        "width": 42,
+        "padding": {
+            "right": 8,
+            "top": 1
+        }
+    },
+
+    "display": {
+        "separator": "  "
+    },
+
+    "modules": [
+        {
+            "type": "os",
+            "key": "OS        ",
+            "keyColor": "magenta"
+        },
+        {
+            "type": "wm",
+            "key": "WM        ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "cpu",
+            "key": "CPU       ",
+            "keyColor": "magenta"
+        },
+        {
+            "type": "gpu",
+            "key": "GPU       ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "memory",
+            "key": "MEMORY    ",
+            "keyColor": "magenta"
+        },
+        {
+            "type": "disk",
+            "key": "DISK      ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "localip",
+            "key": "IP        ",
+            "keyColor": "magenta"
+        }
+    ]
+}

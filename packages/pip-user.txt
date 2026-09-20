@@ -1,0 +1,4 @@
+# pip packages installed with: pip install --user
+Package Version
+------- -------
+pywal   3.8.15

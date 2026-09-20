@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Pick a kitty font size and reload the running instances.
+# Bound to super+alt+f / ctrl+alt+f.
+set -u
+
+CONF="$HOME/.config/kitty/kitty.conf"
+if [ ! -f "$CONF" ]; then
+    echo "font-changer: $CONF not found" >&2
+    exit 1
+fi
+
+cur="$(awk '/^[[:space:]]*font_size/{print $2; exit}' "$CONF")"
+cur="${cur:-11}"
+
+size="$(printf '%s\n' 8 9 10 11 12 13 14 15 16 |
+    rofi -dmenu -i -p 'kitty font size' -mesg "current: $cur")"
+[ -n "$size" ] || exit 0
+case "$size" in ''|*[!0-9.]*) exit 1 ;; esac
+
+if grep -qE '^[[:space:]]*font_size' "$CONF"; then
+    sed -i -E "s/^[[:space:]]*font_size.*/font_size $size/" "$CONF"
+else
+    printf '\nfont_size %s\n' "$size" >> "$CONF"
+fi
+
+pkill -USR1 -x kitty 2>/dev/null || true

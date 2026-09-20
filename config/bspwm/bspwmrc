@@ -1,0 +1,108 @@
+#!/bin/sh
+
+# Start sxhkd if it isn't already running
+/usr/bin/pgrep -x sxhkd > /dev/null || sxhkd &
+
+# Wallpaper
+feh --bg-fill ~/Pictures/Wallpapers/wallhaven.png &
+
+# Animated wallpaper (disabled: needs xeventbind, which is not packaged)
+#xeventbind resolution ~/.awall &
+
+# Launch Polybar
+~/.config/polybar/launch.sh &
+
+# Wallpaper changer (run manually with super+alt+w; not a daemon here)
+#changer &
+
+# Picom
+picom --config ~/.config/picom/picom.conf -b
+
+# Dunst
+dunst --config ~/.config/dunst/dunstrc &
+
+# VMware support
+vmware-user &
+
+# WM name
+wmname LG3D &
+
+# Cursor
+xsetroot -cursor_name left_ptr &
+
+
+# =========================
+# WORKSPACES
+# =========================
+
+bspc monitor -d 1 2 3 4 5 6 7 8 9
+
+
+# =========================
+# WINDOW CONFIG
+# =========================
+
+# Window borders
+bspc config border_width 0
+
+# Window spacing
+bspc config window_gap 12
+
+# Space around screen
+bspc config top_padding 60
+bspc config bottom_padding 10
+bspc config left_padding 10
+bspc config right_padding 10
+
+# Focus
+bspc config focus_follows_pointer true
+
+# Pointer modifier
+bspc config pointer_modifier mod1
+
+# Split ratio
+bspc config split_ratio 0.52
+
+# Monocle
+bspc config borderless_monocle true
+bspc config gapless_monocle true
+
+
+# =========================
+# MOUSE BINDINGS
+# =========================
+
+# Alt + Left Click = move floating windows
+bspc config pointer_action1 move
+
+# Alt + Right Click = resize from side
+bspc config pointer_action3 resize_side
+
+# Alt + Right Click = resize from corner
+bspc config pointer_action3 resize_corner
+
+
+# =========================
+# WINDOW RULES
+# =========================
+
+bspc rule -a Gimp desktop='^8' state=floating follow=on
+bspc rule -a Chromium desktop='^2'
+bspc rule -a mplayer2 state=floating
+bspc rule -a Kupfer.py focus=on
+bspc rule -a Screenkey manage=off
+
+
+# =========================
+# WINDOW STATE CONFIGS
+# =========================
+
+bspc rule -a GParted state=floating focus=on
+bspc rule -a Lxappearance state=floating focus=on
+bspc rule -a SimpleScreenRecorder state=floating focus=on
+bspc rule -a Nm-connection-editor state=floating focus=on
+bspc rule -a Alacritty state=tiled focus=on
+bspc rule -a speedcrunch state=floating focus=on
+bspc rule -a Viewnior focus=on state=tiled
+bspc rule -a Emacs state=tiled focus=on
+bspc rule -a Yad state=floating focus=on

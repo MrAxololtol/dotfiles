@@ -1,0 +1,222 @@
+#!/usr/bin/env bash
+# ff — fastfetch with a CAVA spectrum to the RIGHT of the info block.
+#   ff          astolfo3.png (fastfetch's own kitty logo, untouched)
+#   ff 2        animated apple.gif (same kitty logo path, animates in place)
+#   FF_DEBUG=1  print computed geometry
+set -u
+
+FF_DIR="$HOME/.config/fastfetch"
+CAVA_SRC="$HOME/.config/cava/config"
+GIF="$FF_DIR/apple.gif"
+
+GAP=3
+BAR_H=8
+MIN_BAR_W=10
+GIF_FPS=48     # playback rate for the animated GIF
+DEBUG="${FF_DEBUG:-0}"
+
+# Scales an animated GIF to WxH and retimes it to GIF_FPS (see below).
+GIF_PY='
+import sys
+from PIL import Image, ImageSequence
+src, dst, w, h, fps = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5])
+im = Image.open(src)
+n = getattr(im, "n_frames", 1)
+total = int(round(1000.0 * n / fps))
+base, rem = divmod(total, n)
+durs = [base] * n
+steps = rem // 10
+for i in range(steps):
+    durs[(i * n) // steps] += 10
+pframes = []
+for f in ImageSequence.Iterator(im):
+    rgba = f.convert("RGBA").resize((w, h), Image.LANCZOS)
+    alpha = rgba.getchannel("A")
+    p = rgba.convert("RGB").quantize(colors=255, method=Image.MEDIANCUT)
+    mask = alpha.point(lambda a: 255 if a < 128 else 0)
+    p.paste(255, mask)
+    pframes.append(p)
+pframes[0].save(dst, format="GIF", save_all=True, append_images=pframes[1:], duration=durs, loop=0, disposal=2, transparency=255, optimize=True)
+'
+
+MODE="${1:-1}"
+COLS=$(tput cols)
+LINES=$(tput lines)
+
+# Wide terminals keep the full-size logo; narrower ones use a smaller one so
+# the bars still fit beside the info text. Keep in sync with the logo
+# width/padding in wide.jsonc / narrow.jsonc.
+if [ "$COLS" -ge 120 ]; then
+    CFG="$FF_DIR/wide.jsonc"
+    LOGO_W=42; LOGO_PAD=8
+else
+    CFG="$FF_DIR/narrow.jsonc"
+    LOGO_W=28; LOGO_PAD=4
+fi
+
+# Kitty reports the window size in pixels. The logo is LOGO_W cells wide and
+# cells are not square, so that is what the logo height in rows comes from.
+WINSZ=$(kitten icat --print-window-size 2>/dev/null)
+PXW=${WINSZ%x*}; PXH=${WINSZ#*x}
+case "$PXW$PXH" in ''|*[!0-9]*) PXW=0; PXH=0 ;; esac
+case "$COLS" in ''|*[!0-9]*) COLS=80 ;; esac
+case "$LINES" in ''|*[!0-9]*) LINES=24 ;; esac
+LOGO_H=21
+if [ "$PXW" -gt 0 ] && [ "$PXH" -gt 0 ]; then
+    LOGO_H=$(( LOGO_W * PXW * LINES / (PXH * COLS) ))
+fi
+[ "$LOGO_H" -ge 5 ] && [ "$LOGO_H" -le 60 ] || LOGO_H=21
+
+USE_GIF=0
+[ "$MODE" = "2" ] && [ -f "$GIF" ] && USE_GIF=1
+
+# Scale the GIF to the logo slot (LOGO_W x LOGO_H cells) so it lines up with
+# the blank logo that reserves the space. Cached; a resize costs a couple of
+# seconds. Falls back to the still logo if no scaler is available.
+GIF_SIZED=""
+if [ "$USE_GIF" = 1 ] && [ "$PXW" -gt 0 ] && [ "$PXH" -gt 0 ]; then
+    W_PX=$(( LOGO_W * PXW / COLS ))
+    H_PX=$(( LOGO_H * PXH / LINES ))
+    CACHE="${TMPDIR:-/tmp}/ff-gif-${W_PX}x${H_PX}-${GIF_FPS}fps.gif"
+    if [ ! -s "$CACHE" ] || [ "$GIF" -nt "$CACHE" ]; then
+        # Pillow times the frames exactly: GIF delays step in 10ms, so 48fps
+        # over 48 frames is 44 x 20ms + 4 x 30ms = one 1.000s loop. The
+        # ImageMagick/ffmpeg fallbacks use a flat delay instead.
+        if python3 -c 'import PIL' >/dev/null 2>&1; then
+            python3 -c "$GIF_PY" "$GIF" "$CACHE.$$" "$W_PX" "$H_PX" "$GIF_FPS" 2>/dev/null \
+                && mv -f "$CACHE.$$" "$CACHE"
+        fi
+        if [ ! -s "$CACHE" ] && command -v convert >/dev/null 2>&1; then
+            convert "$GIF" -coalesce -resize "${W_PX}x${H_PX}!" -set delay "$(( 100 / GIF_FPS ))" -layers Optimize "$CACHE.$$" 2>/dev/null \
+                && mv -f "$CACHE.$$" "$CACHE"
+        fi
+        if [ ! -s "$CACHE" ] && command -v ffmpeg >/dev/null 2>&1; then
+            ffmpeg -y -loglevel error -i "$GIF" -filter_complex \
+                "[0:v]scale=${W_PX}:${H_PX}:flags=lanczos,split[s0][s1];[s0]palettegen=reserve_transparent=1:stats_mode=diff[p];[s1][p]paletteuse=alpha_threshold=128:diff_mode=rectangle" \
+                -r "$GIF_FPS" -loop 0 "$CACHE.$$" 2>/dev/null && mv -f "$CACHE.$$" "$CACHE"
+        fi
+        rm -f "$CACHE.$$"
+    fi
+    [ -s "$CACHE" ] && GIF_SIZED="$CACHE"
+fi
+[ -n "$GIF_SIZED" ] || USE_GIF=0
+
+TMPCFG=""
+ANCHORED=0
+cleanup() {
+    printf '\033[?25h'
+    [ -n "$TMPCFG" ] && rm -f "$TMPCFG"
+    if [ "$ANCHORED" = 1 ]; then
+        printf '\0338\033[%dB\r\n' "$((LOGO_H + 1))" 2>/dev/null
+    else
+        printf '\r\n' 2>/dev/null
+    fi
+}
+trap cleanup EXIT INT TERM
+
+measure_text_width() {
+    fastfetch --config "$CFG" --logo-type none --pipe true 2>/dev/null \
+        | sed -e 's/\x1b\[[0-9;?]*[A-Za-z]//g' | wc -L
+}
+
+# Gradient for the cava bars, bottom to top: colorChange's palette when
+# present, otherwise the original pastel set.
+GRAD_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/colorChange/gradient"
+read -r G1 G2 G3 G4 < "$GRAD_FILE" 2>/dev/null || true
+G1="${G1:-#c9a7eb}"; G2="${G2:-#9eb8e8}"; G3="${G3:-#e5a9c9}"; G4="${G4:-#e8e0f5}"
+grad_esc() {
+    local h="${1#\#}"
+    printf '\\033[38;2;%d;%d;%dm' \
+        "$((16#${h:0:2}))" "$((16#${h:2:2}))" "$((16#${h:4:2}))"
+}
+GR0="$(grad_esc "$G1")"; GR1="$(grad_esc "$G2")"; GR2="$(grad_esc "$G3")"; GR3="$(grad_esc "$G4")"
+
+# One line underneath everything, as wide as the terminal, for windows too
+# narrow to fit the bars beside the text.
+fallback() {
+    printf '\n'
+    local cfg
+    cfg=$(mktemp "${TMPDIR:-/tmp}/ff-cava.XXXXXX") || cfg=""
+    if [ -n "$cfg" ]; then
+        sed -e "s/^[[:space:]]*bars[[:space:]]*=.*/bars = $(( COLS - 1 ))/" \
+            -e "s/^[[:space:]]*ascii_max_range[[:space:]]*=.*/ascii_max_range = 8/" \
+            "$CAVA_SRC" > "$cfg" 2>/dev/null || { rm -f "$cfg"; cfg=""; }
+        [ -n "$cfg" ] && TMPCFG="$cfg"
+    fi
+    [ -n "$cfg" ] || cfg="$CAVA_SRC"
+    cava -p "$cfg" | awk -v gr0="$GR0" -v gr1="$GR1" -v gr2="$GR2" -v gr3="$GR3" '
+    BEGIN{c[0]="▁";c[1]="▂";c[2]="▃";c[3]="▄";c[4]="▅";c[5]="▆";c[6]="▇";c[7]="█";c[8]="█"
+          g[0]=gr0;g[1]=gr1;g[2]=gr2;g[3]=gr3;rst="\033[0m"}
+    { out=""
+      for(i=1;i<=NF;i++){h=$i+0; if(h>8)h=8; if(h<0)h=0; b=int(h*4/9); if(b>3)b=3; out=out g[b] c[h]}
+      printf "\033[2K\r%s%s", out, rst; fflush() }'
+    exit
+}
+
+TEXTW=$(measure_text_width); case "$TEXTW" in ''|*[!0-9]*) TEXTW=0 ;; esac
+BAR_COL=$(( LOGO_W + LOGO_PAD + TEXTW + GAP + 1 ))
+BAR_W=$(( COLS - BAR_COL ))
+
+if [ "$DEBUG" = "1" ]; then
+    printf 'cols=%s lines=%s textw=%s logo_h=%s bar_col=%s bar_w=%s mode=%s use_gif=%s\n' \
+        "$COLS" "$LINES" "$TEXTW" "$LOGO_H" "$BAR_COL" "$BAR_W" "$MODE" "$USE_GIF"
+fi
+
+# Drop images left over from earlier runs so only the current logo is on screen.
+# The delete sequence goes to stdout, so it must not be redirected.
+if command -v kitten >/dev/null 2>&1; then
+    kitten icat --clear 2>/dev/null
+fi
+
+if [ "$USE_GIF" = 1 ]; then
+    # icat animates the GIF but cannot scale it without --place (which rejects
+    # animated images), so the scaled copy above is drawn at the cursor and the
+    # blank logo below reserves the same cells for the text layout.
+    if kitten icat -n --stdin=no --align=left --z-index=-1 "$GIF_SIZED" </dev/null; then
+        printf '\033[%dA\033[1G' "$((LOGO_H - 1))"
+    else
+        printf '\033[1G'
+    fi
+    BLANK=$(for _ in $(seq "$LOGO_H"); do printf '%*s\n' "$LOGO_W" ''; done)
+    fastfetch --config "$CFG" --logo "$BLANK" --logo-type data-raw \
+              --logo-width "$LOGO_W" --logo-padding-right "$LOGO_PAD"
+else
+    fastfetch --config "$CFG" --logo-height "$LOGO_H" \
+              --logo-preserve-aspect-ratio false
+fi
+
+[ "$BAR_W" -lt "$MIN_BAR_W" ] && fallback
+
+# Cursor is now at column 1 of the row below the block. Climb back up to the
+# top of the info text (block top) and anchor there, so the bars sit beside the
+# text instead of at the bottom of the logo. Purely relative -- no query.
+printf '\033[%dA\0337' "$((LOGO_H + 1))"
+ANCHORED=1
+printf '\033[?25l'
+
+TMPCFG=$(mktemp "${TMPDIR:-/tmp}/ff-cava.XXXXXX") || fallback
+sed -e "s/^[[:space:]]*bars[[:space:]]*=.*/bars = ${BAR_W}/" \
+    -e "s/^[[:space:]]*ascii_max_range[[:space:]]*=.*/ascii_max_range = $(( 8 * BAR_H ))/" \
+    "$CAVA_SRC" > "$TMPCFG" || fallback
+
+cava -p "$TMPCFG" | awk -v col="$BAR_COL" -v h="$BAR_H" \
+    -v gr0="$GR0" -v gr1="$GR1" -v gr2="$GR2" -v gr3="$GR3" '
+BEGIN { c[0]=" ";c[1]="▁";c[2]="▂";c[3]="▃";c[4]="▄";c[5]="▅";c[6]="▆";c[7]="▇";c[8]="█"
+        g[0]=gr0;g[1]=gr1;g[2]=gr2;g[3]=gr3
+        rst="\033[0m"; total=8*h }
+{
+    out=""
+    for (k=0; k<h; k++) {
+        line=""
+        for (i=1; i<=NF; i++) {
+            v = ($i+0) - 8*(h-1-k)
+            if (v<0) v=0; if (v>8) v=8
+            if (v==0) line = line c[0]
+            else { b=int(((h-1-k)*8+(v-1))*4/total); if (b>3) b=3; line = line g[b] c[v] }
+        }
+        out = out "\0338"
+        if (k>0) out = out sprintf("\033[%dB", k)
+        out = out sprintf("\033[%dG%s%s", col, line, rst)
+    }
+    printf "%s", out; fflush()
+}'

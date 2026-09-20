@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# SUDO_ASKPASS helper: ask for the sudo password with rofi.
+# Usage: SUDO_ASKPASS="$HOME/.local/bin/sudo-rofi" sudo -A <cmd>
+rofi -dmenu -password -p "${1:-Password}" </dev/null

@@ -1,0 +1,48 @@
+{
+    "logo": {
+        "type": "kitty",
+        "source": "~/.config/fastfetch/astolfo3.png",
+        "width": 28,
+        "padding": {
+            "right": 4,
+            "top": 1
+        }
+    },
+
+    "display": {
+        "separator": "  "
+    },
+
+    "modules": [
+        {
+            "type": "os",
+            "key": "OS        ",
+            "keyColor": "magenta"
+        },
+        {
+            "type": "wm",
+            "key": "WM        ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "cpu",
+            "key": "CPU       ",
+            "keyColor": "magenta"
+        },
+        {
+            "type": "memory",
+            "key": "MEMORY    ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "disk",
+            "key": "DISK      ",
+            "keyColor": "magenta"
+        },
+        {
+            "type": "localip",
+            "key": "IP        ",
+            "keyColor": "blue"
+        }
+    ]
+}

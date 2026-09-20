@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Pick a wallpaper with sxiv and apply it with feh.
+# Bound to super+alt+e / ctrl+alt+e.
+set -u
+
+WALL_DIR="${WALL_DIR:-$HOME/Pictures/Wallpapers}"
+if ! command -v sxiv >/dev/null 2>&1; then
+    echo "wallpaper-selector: sxiv is not installed" >&2
+    exit 1
+fi
+
+sel="$(sxiv -t -o "$WALL_DIR" 2>/dev/null | head -n 1)"
+[ -n "$sel" ] || exit 0
+
+feh --no-fehbg --bg-fill "$sel"
+
+# Recolour the desktop to match the new wallpaper.
+if command -v colorChange >/dev/null 2>&1; then
+    colorChange "$sel"
+fi
