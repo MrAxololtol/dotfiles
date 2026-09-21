@@ -155,7 +155,9 @@ colorChange                                         # refresh saved palette
 ```
 
 In the sxiv picker, mark an image with `m`, then quit with `q` to apply it.
-Use `set-wallpaper` when changing an image from a terminal so the palette follows.
+From a terminal, `feh --bg-fill image` works too: a small `feh` wrapper in
+`~/.local/bin` notices wallpaper changes and runs `colorChange` automatically.
+`set-wallpaper` does both in one step.
 
 ## Wi-Fi menu
 

@@ -21,5 +21,5 @@ mkdir -p "$STATE_DIR"
 # Serialize the wallpaper and palette together when hotkeys are pressed quickly.
 exec 8> "$STATE_DIR/wallpaper.lock"
 flock 8
-feh --bg-fill -- "$wall"
+FEH_SKIP_COLORCHANGE=1 feh --bg-fill -- "$wall"
 "$SCRIPT_DIR/colorChange" "$wall"
