@@ -14,7 +14,6 @@ export FZF_CTRL_T_COMMAND='fd --type f --hidden --exclude .git --exclude .cache'
 export FZF_CTRL_T_OPTS='--preview "bat --style=numbers --color=always --line-range :500 {}"'
 export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
 export FZF_DEFAULT_OPTS='--layout=reverse'
-export QT_QPA_PLATFORMTHEME='qt5ct'
 export NPM_PACKAGES="${HOME}/.npm-packages"
 export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
 export MOZ_USE_XINPUT2=1

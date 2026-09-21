@@ -51,7 +51,6 @@ bindkey -M vicmd 'V' edit-command-line
 #{{{ Aliases
 alias ...='cd ../..'
 alias g='git'
-alias p='prime-run'
 alias grep='grep --color=auto'
 if command -v eza >/dev/null 2>&1; then
     alias ls='eza --color=auto --icons'
@@ -75,15 +74,11 @@ fi
 alias :q='exit'
 alias ssh-public-key='cat ~/.ssh/id_rsa.pub'
 alias vim='nvim'
-alias pacinfo='pacman -Qi'
-alias rmorphans='sudo pacman -Rns $(pacman -Qdtq)'
-alias d='dragon -a -x'
 alias notes='nvim /data/sync/Documents/vimwiki/index.md'
 #}}}
 
 # source $HOME/.zsh-plugins/vimwiki.zsh
 # vimwiki_stats
-export PATH="$HOME/.local/bin:$PATH"
 
 # Purple terminal colors
 export LS_COLORS='di=38;5;141:ln=38;5;117:so=38;5;213:pi=38;5;141:ex=38;5;120:bd=38;5;141:cd=38;5;141:su=38;5;213:sg=38;5;213:tw=38;5;141:ow=38;5;141'

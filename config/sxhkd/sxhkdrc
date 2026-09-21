@@ -221,7 +221,7 @@ super + alt + b
 ctrl + alt + b
     change-borders
 
-# Change the alacritty font
+# Change the kitty font
 super + alt + f
     font-changer
 

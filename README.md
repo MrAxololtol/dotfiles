@@ -63,7 +63,7 @@ Japanese car and Linux backgrounds.
 | Hotkeys | [sxhkd](https://github.com/baskerville/sxhkd) |
 | Bar | [polybar](https://github.com/polybar/polybar) |
 | Launcher | [rofi](https://github.com/davatorium/rofi) |
-| Terminal | [kitty](https://sw.kovidgoyal.net/kitty/) (alacritty config included too) |
+| Terminal | [kitty](https://sw.kovidgoyal.net/kitty/) |
 | Notifications | [dunst](https://dunst-project.org/) |
 | Compositor | [picom](https://github.com/yshui/picom) (frosted glass) |
 | Visualiser | [cava](https://github.com/karlstav/cava) + fastfetch wrapper (`ff`) |
