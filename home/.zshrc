@@ -76,4 +76,4 @@ export LS_COLORS='di=38;5;141:ln=38;5;117:so=38;5;213:pi=38;5;141:ex=38;5;120:bd
 alias ll='ls -lah --color=auto'
 
 # opencode
-export PATH=/home/eth/.opencode/bin:$PATH
+export PATH="$HOME/.opencode/bin:$PATH"
