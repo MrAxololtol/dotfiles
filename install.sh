@@ -121,7 +121,7 @@ fi
 
 if [ "$DO_PACKAGES" = 1 ]; then
     echo "==> packages"
-    "$DOTFILES/install-packages.sh"
+    bash "$DOTFILES/install-packages.sh"
 fi
 
 echo
