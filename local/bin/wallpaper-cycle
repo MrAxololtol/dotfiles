@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Cycle wallpapers in order. Each change goes through set-wallpaper, so
+# colorChange refreshes Polybar and Rofi to match the new wallpaper.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+WALL_DIR="${WALL_DIR:-$HOME/Pictures/Wallpapers}"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/wallpaper-cycle"
+STATE_FILE="$STATE_DIR/current"
+COLOR_STATE="${XDG_CACHE_HOME:-$HOME/.cache}/colorChange/last-wallpaper"
+
+mapfile -t WALLS < <(find "$WALL_DIR" -maxdepth 1 -type f \
+    \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) | sort)
+
+if [ "${#WALLS[@]}" -eq 0 ]; then
+    echo "wallpaper-cycle: no wallpapers in $WALL_DIR" >&2
+    exit 1
+fi
+
+current=""
+if [ -f "$COLOR_STATE" ]; then
+    current="$(cat "$COLOR_STATE")"
+fi
+if [ -z "$current" ] && [ -f "$STATE_FILE" ]; then
+    current="$(cat "$STATE_FILE")"
+fi
+current_name="$(basename -- "$current")"
+
+index=-1
+for i in "${!WALLS[@]}"; do
+    if [ "$(basename -- "${WALLS[$i]}")" = "$current_name" ]; then
+        index="$i"
+        break
+    fi
+done
+next=$(( (index + 1) % ${#WALLS[@]} ))
+wall="${WALLS[$next]}"
+
+mkdir -p "$STATE_DIR"
+printf '%s\n' "$wall" > "$STATE_FILE"
+
+# Rofi should follow the wallpaper palette, not a leftover static theme.
+if [ -x "$SCRIPT_DIR/theme-cycle" ]; then
+    "$SCRIPT_DIR/theme-cycle" --set auto >/dev/null 2>&1 || true
+fi
+
+"$SCRIPT_DIR/set-wallpaper" "$wall"
+
+text="$(basename -- "$wall")  ($((next + 1))/${#WALLS[@]})"
+if command -v dunstify >/dev/null 2>&1; then
+    dunstify -a wallpaper-cycle -t 1500 "Wallpaper" "$text" >/dev/null 2>&1 || true
+elif command -v notify-send >/dev/null 2>&1; then
+    notify-send -t 1500 "Wallpaper" "$text" >/dev/null 2>&1 || true
+fi

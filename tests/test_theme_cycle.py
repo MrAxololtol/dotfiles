@@ -96,12 +96,10 @@ class ThemeCycleTests(unittest.TestCase):
         source = (REPOSITORY / "local/bin/colorChange").read_text()
         self.assertNotIn('>> "$CONFIG_DIR/rofi/config.rasi"', source)
 
-    def test_configs_and_hotkey_use_the_active_theme(self):
+    def test_configs_use_the_active_theme(self):
         for relative in ("config/rofi/config.rasi", "config/rofi/applaunch/config.rasi"):
             self.assertIn("~/.local/share/rofi-themes/active.rasi",
                           (REPOSITORY / relative).read_text())
-        sxhkd = (REPOSITORY / "config/sxhkd/sxhkdrc").read_text()
-        self.assertIn('super + r\n    "$HOME/.local/bin/theme-cycle"', sxhkd)
 
 
 if __name__ == "__main__":

@@ -15,9 +15,9 @@ super + ctrl + Return
 super + d
     rofi -show drun -theme ~/.config/rofi/applaunch/config.rasi
 
-# cycle rofi colour themes (wallpaper auto + bundled themes)
+# cycle wallpapers (polybar + rofi palette follows automatically)
 super + r
-    "$HOME/.local/bin/theme-cycle"
+    "$HOME/.local/bin/wallpaper-cycle"
 
 # sudo program launcher
 super + ctrl + d

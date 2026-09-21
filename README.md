@@ -106,7 +106,7 @@ drops duplicate conflict packages. Pywal is installed with
 | `super + Return` | kitty |
 | `super + ctrl + Return` | qterminal |
 | `super + d` | rofi launcher |
-| `super + r` | cycle rofi colour themes (wallpaper auto + bundled themes) |
+| `super + r` | cycle wallpapers (polybar + rofi follow automatically) |
 | `super + ctrl + d` | rofi launcher, runs the picked program as root (rofi askpass) |
 | `super + shift + s` / `Print` | screenshot (flameshot) |
 | `super + q` | power menu (rofi) |
@@ -160,15 +160,18 @@ From a terminal, `feh --bg-fill image` works too: a small `feh` wrapper in
 `~/.local/bin` notices wallpaper changes and runs `colorChange` automatically.
 `set-wallpaper` does both in one step.
 
-## Rofi themes (`super + r`)
+## Wallpaper cycling (`super + r`)
 
-Press `super + r` to cycle through `auto` (the wallpaper-driven palette) and
-the 68 bundled colour themes. The selection is saved in
-`~/.local/state/rofi-theme/current` and applied through
-`~/.local/share/rofi-themes/active.rasi`, which the launcher and Wi-Fi menu
-import, so it survives restarts. `theme-cycle --list` lists the themes and
-`theme-cycle --set <name>` jumps straight to one; `auto` puts Rofi back in
-sync with the wallpaper palette.
+Press `super + r` to walk through `~/Pictures/Wallpapers` in order. Each
+wallpaper goes through `set-wallpaper`, so `colorChange` refreshes the Polybar
+and Rofi palettes in the same step. The position is remembered in
+`~/.local/state/wallpaper-cycle/current`, and cycling continues from a
+wallpaper set by `changer`, the sxiv picker or `feh`.
+
+Rofi follows the wallpaper palette through
+`~/.local/share/rofi-themes/active.rasi`. To pin one of the bundled static
+themes instead, run `theme-cycle --set <name>` (`theme-cycle --list` lists
+them); the next `super + r` puts Rofi back on the wallpaper palette.
 
 ## Wi-Fi menu
 
