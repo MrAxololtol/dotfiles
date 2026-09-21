@@ -106,6 +106,7 @@ drops duplicate conflict packages. Pywal is installed with
 | `super + Return` | kitty |
 | `super + ctrl + Return` | qterminal |
 | `super + d` | rofi launcher |
+| `super + r` | cycle rofi colour themes (wallpaper auto + bundled themes) |
 | `super + ctrl + d` | rofi launcher, runs the picked program as root (rofi askpass) |
 | `super + shift + s` / `Print` | screenshot (flameshot) |
 | `super + q` | power menu (rofi) |
@@ -159,6 +160,16 @@ From a terminal, `feh --bg-fill image` works too: a small `feh` wrapper in
 `~/.local/bin` notices wallpaper changes and runs `colorChange` automatically.
 `set-wallpaper` does both in one step.
 
+## Rofi themes (`super + r`)
+
+Press `super + r` to cycle through `auto` (the wallpaper-driven palette) and
+the 68 bundled colour themes. The selection is saved in
+`~/.local/state/rofi-theme/current` and applied through
+`~/.local/share/rofi-themes/active.rasi`, which the launcher and Wi-Fi menu
+import, so it survives restarts. `theme-cycle --list` lists the themes and
+`theme-cycle --set <name>` jumps straight to one; `auto` puts Rofi back in
+sync with the wallpaper palette.
+
 ## Wi-Fi menu
 
 Click the network name in Polybar. Networks use five signal levels, from empty
@@ -200,7 +211,7 @@ This rice stands on other people's work. Files that come from elsewhere:
 - [m4nqn/Colorful](https://github.com/m4nqn/Colorful) — the polybar/rofi
   foundation and several helper scripts this setup grew out of.
 - [adi1090x/rofi](https://github.com/adi1090x/rofi) — the rofi theme
-  collection (`config/rofi/colors`, 69 themes, MIT/GPL per upstream).
+  collection (`config/rofi/colors`, 68 themes, MIT/GPL per upstream).
 - [woefe/git-prompt.zsh](https://github.com/woefe/git-prompt.zsh),
   [woefe/zsh](https://github.com/woefe) — `wbase.zsh` and the prompt.
 - [zsh-users](https://github.com/zsh-users) — zsh-autosuggestions,

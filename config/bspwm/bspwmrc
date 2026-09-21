@@ -9,6 +9,9 @@ export PATH="$HOME/.local/bin:$PATH"
 # Restore the last chosen wallpaper and its colours on login/restart.
 "$HOME/.local/bin/set-wallpaper" --restore &
 
+# Re-apply the saved Rofi theme selection (super + r cycles it).
+[ -x "$HOME/.local/bin/theme-cycle" ] && "$HOME/.local/bin/theme-cycle" --ensure
+
 # Animated wallpaper (disabled: needs xeventbind, which is not packaged)
 #xeventbind resolution ~/.awall &
 

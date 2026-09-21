@@ -56,6 +56,11 @@ for src in "$DOTFILES"/config/*; do
     install_path "$src" "$HOME/.config/$(basename "$src")"
 done
 
+# Rofi theme switcher (super + r): default to the wallpaper-driven palette.
+mkdir -p "$HOME/.local/share/rofi-themes"
+[ -e "$HOME/.local/share/rofi-themes/active.rasi" ] || \
+    ln -sfn "$HOME/.config/rofi/colors/generated.rasi" "$HOME/.local/share/rofi-themes/active.rasi"
+
 echo "==> shell files"
 for src in "$DOTFILES"/home/.[!.]*; do
     install_path "$src" "$HOME/$(basename "$src")"

@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# Cycle the Rofi colour themes (wallpaper palette + 69 bundled themes).
+# The selection is stored in a state file and applied through an active.rasi
+# symlink, so it survives restarts and re-installs.
+set -euo pipefail
+
+THEME_DIR="${ROFI_THEME_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/rofi/colors}"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/rofi-theme"
+STATE_FILE="$STATE_DIR/current"
+ACTIVE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/rofi-themes"
+ACTIVE_FILE="$ACTIVE_DIR/active.rasi"
+AUTO="auto"
+AUTO_LABEL="wallpaper (auto)"
+
+themes() {
+    printf '%s\n' "$AUTO"
+    local f name
+    for f in "$THEME_DIR"/*.rasi; do
+        [ -e "$f" ] || continue
+        name="$(basename -- "$f")"
+        [ "$name" = "generated.rasi" ] && continue
+        printf '%s\n' "$name"
+    done | sort
+}
+
+target_for() { # <name>
+    case "$1" in
+        "$AUTO") printf '%s\n' "${XDG_CONFIG_HOME:-$HOME/.config}/rofi/colors/generated.rasi" ;;
+        *) printf '%s\n' "$THEME_DIR/$1" ;;
+    esac
+}
+
+label_for() { # <name>
+    if [ "$1" = "$AUTO" ]; then
+        printf '%s\n' "$AUTO_LABEL"
+    else
+        printf '%s\n' "${1%.rasi}"
+    fi
+}
+
+current() {
+    if [ -f "$STATE_FILE" ]; then
+        cat "$STATE_FILE"
+    else
+        printf '%s\n' "$AUTO"
+    fi
+}
+
+apply() { # <name>
+    mkdir -p "$STATE_DIR" "$ACTIVE_DIR"
+    ln -sfn "$(target_for "$1")" "$ACTIVE_FILE"
+    printf '%s\n' "$1" > "$STATE_FILE"
+}
+
+notify() { # <name> <position> <total>
+    local text
+    text="$(label_for "$1")  ($2/$3)"
+    if command -v dunstify >/dev/null 2>&1; then
+        dunstify -a theme-cycle -t 1500 "Rofi theme" "$text" >/dev/null 2>&1 || true
+    elif command -v notify-send >/dev/null 2>&1; then
+        notify-send -t 1500 "Rofi theme" "$text" >/dev/null 2>&1 || true
+    fi
+}
+
+case "${1:-}" in
+    --ensure)
+        selected="$(current)"
+        [ -e "$(target_for "$selected")" ] || selected="$AUTO"
+        apply "$selected"
+        ;;
+    --list)
+        themes
+        ;;
+    --set)
+        [ $# -ge 2 ] || { echo "Usage: theme-cycle --set NAME" >&2; exit 1; }
+        apply "$2"
+        ;;
+    *)
+        mapfile -t ALL < <(themes)
+        total="${#ALL[@]}"
+        selected="$(current)"
+        index=0
+        for i in "${!ALL[@]}"; do
+            if [ "${ALL[$i]}" = "$selected" ]; then
+                index="$i"
+                break
+            fi
+        done
+        next=$(( (index + 1) % total ))
+        apply "${ALL[$next]}"
+        notify "${ALL[$next]}" "$((next + 1))" "$total"
+        ;;
+esac

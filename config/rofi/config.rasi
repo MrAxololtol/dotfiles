@@ -272,4 +272,4 @@ error-message {
     text-color:                  @foreground-colour;
 }
 
-@import "colors/generated.rasi"
+@import "~/.local/share/rofi-themes/active.rasi"

@@ -15,6 +15,10 @@ super + ctrl + Return
 super + d
     rofi -show drun -theme ~/.config/rofi/applaunch/config.rasi
 
+# cycle rofi colour themes (wallpaper auto + bundled themes)
+super + r
+    "$HOME/.local/bin/theme-cycle"
+
 # sudo program launcher
 super + ctrl + d
     SUDO_ASKPASS="$HOME/.local/bin/sudo-rofi" $(cat ~/.sudo-launch) 'sudo -A \{cmd\}'

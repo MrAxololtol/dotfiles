@@ -16,7 +16,7 @@ configuration {
 }
 
 /*****----- Global Properties -----*****/
-@import "~/.config/rofi/colors/generated.rasi"
+@import "~/.local/share/rofi-themes/active.rasi"
 
 /*****----- Main Window -----*****/
 window {

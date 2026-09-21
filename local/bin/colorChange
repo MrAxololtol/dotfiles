@@ -196,8 +196,8 @@ mkdir -p "$CONFIG_DIR/rofi/colors"
     printf '    urgent:         %s;\n' "$(lighten "$ACCENT" 15)"
     echo "}"
 } | write_file "$CONFIG_DIR/rofi/colors/generated.rasi"
-grep -q 'colors/generated.rasi' "$CONFIG_DIR/rofi/config.rasi" 2>/dev/null || \
-    printf '\n@import "colors/generated.rasi"\n' >> "$CONFIG_DIR/rofi/config.rasi"
+# Rofi imports ~/.local/share/rofi-themes/active.rasi, which theme-cycle
+# points at generated.rasi in auto mode or at a chosen theme otherwise.
 
 # ----------------------------------------------------------------- dunst ----
 mkdir -p "$CONFIG_DIR/dunst/dunstrc.d"
