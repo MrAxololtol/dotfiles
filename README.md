@@ -77,6 +77,8 @@ Japanese car and Linux backgrounds.
 git clone https://github.com/MrAxololtol/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 
+chmod +x install.sh          # make sure the installer is executable
+
 ./install.sh                 # configs, shell files, ~/.local/bin, fonts, wallpapers
 ./install.sh --system        # also /usr/local/bin scripts (sudo)
 ./install.sh --packages      # also apt/pip/zsh-plugin install
