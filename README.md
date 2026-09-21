@@ -116,6 +116,9 @@ drops duplicate conflict packages. Pywal is installed with
 | `super + alt + f` | kitty font size picker |
 | `super + {h,j,k,l}` / arrows | focus windows |
 | `super + shift + {h,j,k,l}` | swap windows |
+| `super + left-click drag` | move window with the mouse |
+| `super + middle-click drag` | resize window from the side |
+| `super + right-click drag` | resize window from the corner |
 | `super + {1..9,0}` | desktops |
 | `super + alt + {q,r}` | quit / restart bspwm |
 | `XF86Audio{Raise,Lower}Volume`, `XF86AudioMute` | volume (pactl) |
