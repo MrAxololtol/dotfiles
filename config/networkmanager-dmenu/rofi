@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""Add image icons to networkmanager-dmenu without changing its selections.
+
+The basename must remain `rofi`: networkmanager-dmenu uses it to enable
+Rofi prompts, password entry and active-connection highlighting.
+"""
+
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+
+DIRECTORY = Path(__file__).resolve().parent
+SIGNAL = re.compile(r"  ·  [^·]*  ·  (\d{1,3})%$")
+ACTION_ICONS = {
+    "Enable WiFi": "wifi-4",
+    "Disable WiFi": "wifi-off",
+    "Enable Networking": "network",
+    "Disable Networking": "power",
+    "Enable Bluetooth": "bluetooth",
+    "Disable Bluetooth": "bluetooth-off",
+    "Enable WWAN": "cellular",
+    "Disable WWAN": "cellular-off",
+    "Launch Connection Manager": "settings",
+    "Delete a Connection": "trash",
+    "Rescan WiFi Networks": "refresh",
+    "Show WiFi password": "key",
+    "Saved connections": "saved",
+}
+PROFILE_ICONS = {
+    "Hotspot": "hotspot",
+    "VPN": "shield",
+    "Wireguard": "shield",
+    "VLAN": "network",
+    "Eth": "ethernet",
+    "GSM": "cellular",
+    "Bluetooth": "bluetooth",
+    "SAVED": "saved",
+}
+
+
+def icon_for_row(row, prompt):
+    """Keep submenu profile names separate from main-menu action labels."""
+    if prompt == "CHOOSE ADAPTER:":
+        return "wifi-4"
+    if prompt == "CHOOSE CONNECTION:":
+        return "saved"
+    if prompt == "CHOOSE CONNECTION TO DELETE:":
+        return "trash"
+    if prompt.startswith("DELETE '"):
+        return "trash" if row == "Yes" else "cancel"
+    signal = SIGNAL.search(row)
+    if signal:
+        strength = max(0, min(100, int(signal.group(1))))
+        return f"wifi-{(strength + 24) // 25}"
+    if row in ACTION_ICONS:
+        return ACTION_ICONS[row]
+    return PROFILE_ICONS.get(row.rsplit(":", 1)[-1], "network")
+
+
+def add_icons(text, prompt):
+    # Keep all rows and their original labels so -a indices and actions match.
+    rows = []
+    for row in text.split("\n"):
+        if row.strip() and "\0" not in row:
+            icon = DIRECTORY / "icons" / f"{icon_for_row(row, prompt)}.svg"
+            row += f"\0icon\x1f{icon}"
+        rows.append(row)
+    return "\n".join(rows)
+
+
+def main():
+    args = sys.argv[1:]
+    prompt = ""
+    for index, arg in enumerate(args[:-1]):
+        if arg == "-p":
+            prompt = args[index + 1].strip()
+    text = sys.stdin.read()
+    command = ["/usr/bin/rofi", "-theme", str(DIRECTORY / "theme.rasi")]
+    command.extend(args)
+    if prompt == "Passphrase":
+        command.extend([
+            "-theme-str",
+            'window { width: 600px; } listview { enabled: false; } '
+            'entry { placeholder: "Password"; }',
+        ])
+    result = subprocess.run(command, input=add_icons(text, prompt), text=True)
+    return result.returncode
+
+
+if __name__ == "__main__":
+    sys.exit(main())

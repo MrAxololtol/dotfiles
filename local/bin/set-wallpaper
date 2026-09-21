@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Apply a wallpaper, remember it with feh, and refresh the desktop palette.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+STATE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/colorChange"
+wall="${1:-}"
+if [[ "$wall" == --restore ]]; then
+    wall=""
+    if [[ -f "$STATE_DIR/last-wallpaper" ]]; then
+        IFS= read -r wall < "$STATE_DIR/last-wallpaper" || true
+    fi
+    [[ -f "$wall" ]] || wall="$HOME/Pictures/Wallpapers/wallhaven.png"
+fi
+if [[ -z "$wall" || ! -f "$wall" ]]; then
+    echo "Usage: set-wallpaper /path/to/image (or --restore)" >&2
+    exit 1
+fi
+wall="$(realpath -- "$wall")"
+mkdir -p "$STATE_DIR"
+# Serialize the wallpaper and palette together when hotkeys are pressed quickly.
+exec 8> "$STATE_DIR/wallpaper.lock"
+flock 8
+feh --bg-fill -- "$wall"
+"$SCRIPT_DIR/colorChange" "$wall"

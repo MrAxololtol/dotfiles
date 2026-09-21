@@ -193,19 +193,19 @@ super + alt + {Left,Down,Up,Right}
 super + alt + {h,j,k,l}
     ~/.config/bspwm/bspwm_resize {west,south,north,east}
 
-# Wallpaper Color Theme (Kill itself in case that's already running)
+# Random wallpaper and automatic colour refresh
 super + alt + w
-    changer
+    "$HOME/.local/bin/changer"
 
 ctrl + alt + w
-    changer
+    "$HOME/.local/bin/changer"
 
 # GUI Wallpaper Selector
 super + alt + e
-    wallpaper-selector
+    "$HOME/.local/bin/wallpaper-selector"
 
 ctrl + alt + e
-    wallpaper-selector
+    "$HOME/.local/bin/wallpaper-selector"
 
 # GUI Wallpaper Preview Selector
 super + alt + x

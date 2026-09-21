@@ -17,6 +17,10 @@
   rofi foundation this setup grew out of, customised heavily since.
 - **`ff`** — a fastfetch dashboard that draws a cava spectrum to the right of
   the info block, with wide/narrow layouts and an animated GIF mode.
+- **Wi-Fi tiles with real icons.** Signal strength controls the Wi-Fi arcs;
+  Bluetooth, Ethernet, VPN and menu actions have their own SVG icons.
+- **15 bundled wallpapers.** Anime, cars, Linux and abstract backgrounds,
+  with a thumbnail picker and automatic colour refresh.
 
 ## Screenshots
 
@@ -35,6 +39,20 @@
 | rofi launcher | polybar |
 | --- | --- |
 | ![rofi](screenshots/rofi.png) | ![polybar](screenshots/polybar.png) |
+
+### Wi-Fi menu
+
+![Wi-Fi menu with signal strength and action icons](screenshots/wifi-menu.png)
+
+The preview uses sample network names. Real networks show their current signal
+percentage; the connected network is highlighted.
+
+### Wallpapers
+
+[![Bundled wallpaper gallery](screenshots/wallpapers.jpg)](wallpapers/README.md)
+
+Browse [all 15 wallpapers](wallpapers/README.md), including the new anime,
+Japanese car and Linux backgrounds.
 
 ## Stack
 
@@ -56,7 +74,7 @@
 ## Install
 
 ```sh
-git clone <this repo> ~/.dotfiles
+git clone https://github.com/MrAxololtol/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 
 ./install.sh                 # configs, shell files, ~/.local/bin, fonts, wallpapers
@@ -69,6 +87,9 @@ cd ~/.dotfiles
 Everything is **copied** (not symlinked); anything it replaces is first backed
 up to `~/dotfiles-backup-<timestamp>/`. Log out and back in, or restart bspwm
 with `super + alt + r`.
+
+The default install includes the Wi-Fi menu, its SVG icons and its Rofi theme.
+Its launcher path is adjusted to your home directory during installation.
 
 The apt package list is `packages/apt-manual.txt` (the full
 `apt-mark showmanual` of this machine). Pywal is installed with
@@ -110,9 +131,35 @@ re-writes:
 - `~/.config/dunst/dunstrc.d/99-colorChange.conf` — notifications
 - `~/.cache/colorChange/gradient` — the cava/`ff` bar gradient
 
-Then it reloads kitty (`SIGUSR1`), polybar and dunst. `changer` and
-`wallpaper-selector` call it automatically, so the whole desktop follows the
-wallpaper. Run it by hand any time: `colorChange ~/Pictures/Wallpapers/x.jpg`.
+`changer` and `wallpaper-selector` use `set-wallpaper`, which applies the image,
+saves it and runs `colorChange`. The last chosen wallpaper and its palette are
+restored when bspwm starts. Polybar reloads its palette automatically, and the
+Rofi application launcher and Wi-Fi menu read the same generated colours each
+time they open. No manual restart is needed after changing the wallpaper.
+
+Pywal only generates the palette: its own desktop reload hooks are disabled so
+it cannot restart bspwm and reset the wallpaper. A failed pywal run falls back
+to ImageMagick instead of reusing an old palette.
+
+```sh
+set-wallpaper ~/Pictures/Wallpapers/red-wallpaper.jpg  # apply image + colours
+set-wallpaper --restore                              # restore saved wallpaper
+colorChange                                         # refresh saved palette
+```
+
+In the sxiv picker, mark an image with `m`, then quit with `q` to apply it.
+Use `set-wallpaper` when changing an image from a terminal so the palette follows.
+
+## Wi-Fi menu
+
+Click the network name in Polybar. Networks use five signal levels, from empty
+arcs at 0% to full arcs above 75%, alongside their signal percentage. The menu
+also includes icons for Ethernet, VPN/WireGuard, Bluetooth, saved connections,
+rescan, connection settings and other controls.
+
+The adapter in `config/networkmanager-dmenu/rofi` supplies Rofi image metadata;
+it preserves the original labels, active selection and password prompts.
+The icons are bundled SVG files, so they do not depend on a particular icon font.
 
 ## `ff` — fastfetch + cava dashboard
 

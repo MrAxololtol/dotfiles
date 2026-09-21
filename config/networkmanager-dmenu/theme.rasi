@@ -1,0 +1,72 @@
+/* Network tiles share the application launcher's colours and rounded style. */
+@import "~/.config/rofi/applaunch/config.rasi"
+
+configuration {
+    show-icons: true;
+}
+
+window {
+    width: 960px;
+}
+
+mainbox {
+    margin: 28px;
+    spacing: 20px;
+}
+
+entry {
+    placeholder: "Search networks or actions...";
+}
+
+listview {
+    columns: 3;
+    lines: 3;
+    spacing: 16px;
+    fixed-height: false;
+}
+
+element {
+    children: [ "element-icon", "element-text" ];
+    spacing: 8px;
+    padding: 10px;
+    border: 2px;
+    border-color: transparent;
+    border-radius: 16px;
+    background-color: @background-alt;
+}
+
+element normal.normal, element alternate.normal {
+    background-color: @background-alt;
+    text-color: @foreground;
+}
+
+element normal.active, element alternate.active {
+    background-color: @background-alt;
+    border-color: @active;
+    text-color: @active;
+}
+
+element selected.normal, element selected.active {
+    background-color: @background-alt;
+    border-color: @selected;
+    text-color: @foreground;
+}
+
+element-icon {
+    padding: 8px;
+    size: 52px;
+    border-radius: 8px;
+    background-color: transparent;
+}
+
+element-text {
+    padding: 8px 2px;
+    font: "Noto Sans 10";
+    background-color: transparent;
+}
+
+element-text selected {
+    border-radius: 8px;
+    background-color: @selected;
+    text-color: @selected-fg;
+}

@@ -5,3 +5,5 @@
 # OS/editor cruft
 .DS_Store
 *~
+__pycache__/
+*.pyc

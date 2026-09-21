@@ -16,7 +16,7 @@ configuration {
 }
 
 /*****----- Global Properties -----*****/
-@import	 "colors/ef-cherie.rasi"
+@import "~/.config/rofi/colors/generated.rasi"
 
 /*****----- Main Window -----*****/
 window {

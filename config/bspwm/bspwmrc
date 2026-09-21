@@ -1,10 +1,13 @@
 #!/bin/sh
 
+# Desktop hotkeys also need the helpers installed in ~/.local/bin.
+export PATH="$HOME/.local/bin:$PATH"
+
 # Start sxhkd if it isn't already running
 /usr/bin/pgrep -x sxhkd > /dev/null || sxhkd &
 
-# Wallpaper
-feh --bg-fill ~/Pictures/Wallpapers/wallhaven.png &
+# Restore the last chosen wallpaper and its colours on login/restart.
+"$HOME/.local/bin/set-wallpaper" --restore &
 
 # Animated wallpaper (disabled: needs xeventbind, which is not packaged)
 #xeventbind resolution ~/.awall &

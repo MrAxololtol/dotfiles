@@ -66,7 +66,23 @@ mkdir -p "$HOME/.local/bin"
 for src in "$DOTFILES"/local/bin/*; do
     install_path "$src" "$HOME/.local/bin/$(basename "$src")"
 done
+# The bar's Wi-Fi menu works without a separate system-wide install.
+install_path "$DOTFILES/usr-local-bin/networkmanager_dmenu" "$HOME/.local/bin/networkmanager_dmenu"
 chmod +x "$HOME/.local/bin/"* 2>/dev/null || true
+
+# networkmanager-dmenu does not expand ~ in the launcher executable itself.
+python3 - "$HOME/.config/networkmanager-dmenu/config.ini" <<'PY'
+from pathlib import Path
+import shlex
+import sys
+
+config = Path(sys.argv[1])
+launcher = shlex.quote(str(config.parent / "rofi"))
+config.write_text(config.read_text().replace(
+    "dmenu_command = ~/.config/networkmanager-dmenu/rofi",
+    "dmenu_command = " + launcher,
+))
+PY
 
 echo "==> zsh plugins (bundled)"
 for src in "$DOTFILES"/zsh/plugins/*; do
@@ -81,7 +97,11 @@ command -v fc-cache >/dev/null 2>&1 && fc-cache -f >/dev/null || true
 
 echo "==> wallpapers"
 mkdir -p "$HOME/Pictures/Wallpapers"
-cp -a "$DOTFILES"/wallpapers/. "$HOME/Pictures/Wallpapers/"
+for src in "$DOTFILES"/wallpapers/*; do
+    case "$src" in
+        *.jpg|*.jpeg|*.png|*.webp) cp -a "$src" "$HOME/Pictures/Wallpapers/" ;;
+    esac
+done
 
 if [ "$DO_WALLPAPERS" = 1 ]; then
     echo "==> animated wallpapers"
