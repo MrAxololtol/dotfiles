@@ -16,7 +16,7 @@ DO_SYSTEM=0; DO_PACKAGES=0; DO_WALLPAPERS=0
 
 usage() {
     sed -n '2,10p' "$0"
-    exit 0
+    exit "${1:-0}"
 }
 
 for arg in "$@"; do
@@ -26,7 +26,7 @@ for arg in "$@"; do
         --wallpapers) DO_WALLPAPERS=1 ;;
         --all)        DO_SYSTEM=1; DO_PACKAGES=1; DO_WALLPAPERS=1 ;;
         -h|--help)    usage ;;
-        *) echo "install.sh: unknown option: $arg" >&2; usage ;;
+        *) echo "install.sh: unknown option: $arg" >&2; usage 1 ;;
     esac
 done
 

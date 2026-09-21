@@ -19,9 +19,10 @@ fi
 
 # Prompt: git status, hostname for ssh sessions, vi mode indicator
 source $HOME/.zsh-plugins/git-prompt.zsh/git-prompt.zsh
-source $HOME/.zsh-plugins/git-prompt.zsh/examples/myprompt.zsh
+source $HOME/.zsh-plugins/git-prompt.zsh/examples/wprompt.zsh
 
-# Enable syntax highlighting. Must be loaded after all `zle -N` calls (see
+# Enable syntax highlighting. Must be loaded after all `zle -N` calls.
+source $HOME/.zsh-plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
 # Enable fish-shell like history searching. Must be loaded after zsh-syntax-highlighting.
 source $HOME/.zsh-plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
@@ -43,6 +44,7 @@ bindkey '^ ' autosuggest-accept
 bindkey '^f' autosuggest-accept
 
 # edit-command-line module
+autoload -Uz edit-command-line
 bindkey -M vicmd 'V' edit-command-line
 #}}}
 
@@ -51,10 +53,25 @@ alias ...='cd ../..'
 alias g='git'
 alias p='prime-run'
 alias grep='grep --color=auto'
-alias la='exa -lah --color=auto --icons'
-alias lh='exa -lh --color=auto --icons'
-alias ls='exa --color=auto --icons'
-alias l='exa --color=auto --icons'
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza --color=auto --icons'
+    alias l='eza --color=auto --icons'
+    alias la='eza -lah --color=auto --icons'
+    alias lh='eza -lh --color=auto --icons'
+    alias ll='eza -lah --color=auto --icons'
+elif command -v exa >/dev/null 2>&1; then
+    alias ls='exa --color=auto --icons'
+    alias l='exa --color=auto --icons'
+    alias la='exa -lah --color=auto --icons'
+    alias lh='exa -lh --color=auto --icons'
+    alias ll='exa -lah --color=auto --icons'
+else
+    alias ls='ls --color=auto'
+    alias l='ls -l --color=auto'
+    alias la='ls -lah --color=auto'
+    alias lh='ls -lh --color=auto'
+    alias ll='ls -lah --color=auto'
+fi
 alias :q='exit'
 alias ssh-public-key='cat ~/.ssh/id_rsa.pub'
 alias vim='nvim'
@@ -70,10 +87,6 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # Purple terminal colors
 export LS_COLORS='di=38;5;141:ln=38;5;117:so=38;5;213:pi=38;5;141:ex=38;5;120:bd=38;5;141:cd=38;5;141:su=38;5;213:sg=38;5;213:tw=38;5;141:ow=38;5;141'
-alias ll='ls -lah --color=auto'
-
-export LS_COLORS='di=38;5;141:ln=38;5;117:so=38;5;213:pi=38;5;141:ex=38;5;120:bd=38;5;141:cd=38;5;141:su=38;5;213:sg=38;5;213:tw=38;5;141:ow=38;5;141'
-alias ll='ls -lah --color=auto'
 
 # opencode
 export PATH="$HOME/.opencode/bin:$PATH"

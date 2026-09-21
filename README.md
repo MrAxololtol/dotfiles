@@ -94,8 +94,10 @@ The default install includes the Wi-Fi menu, its SVG icons and its Rofi theme.
 Its launcher path is adjusted to your home directory during installation.
 
 The apt package list is `packages/apt-manual.txt` (the full
-`apt-mark showmanual` of this machine). Pywal is installed with
-`pip install --user pywal`.
+`apt-mark showmanual` of this machine). On other Debian-based systems the
+installer skips names that are not in the archive instead of failing, and
+drops duplicate conflict packages. Pywal is installed with
+`pip3 install --user pywal`.
 
 ## Keybinds
 

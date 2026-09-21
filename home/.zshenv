@@ -1,5 +1,8 @@
 typeset -U PATH path
-path=(~/.local/bin $(find $HOME/.local/scripts/ -type d -printf "%p ") $path[@] )
+path=(~/.local/bin $path[@])
+if [ -d "$HOME/.local/scripts" ]; then
+    path=($(find "$HOME/.local/scripts" -type d) $path[@])
+fi
 fpath=(~/.zsh-plugins/zsh-completions/src $fpath)
 export PATH
 
