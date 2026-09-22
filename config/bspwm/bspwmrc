@@ -24,6 +24,11 @@ export PATH="$HOME/.local/bin:$PATH"
 # Picom
 picom --config ~/.config/picom/picom-pijulius.conf -b
 
+# DeepSeek-chan desktop pet (only if installed and not already running)
+if command -v deepseek-chan >/dev/null 2>&1; then
+    pgrep -f "deepseek-chan run" >/dev/null || deepseek-chan run &
+fi
+
 # Dunst
 dunst --config ~/.config/dunst/dunstrc &
 
