@@ -22,13 +22,10 @@ export PATH="$HOME/.local/bin:$PATH"
 #changer &
 
 # Picom
-picom --config ~/.config/picom/picom.conf -b
+picom --config ~/.config/picom/picom-pijulius.conf -b
 
 # Dunst
 dunst --config ~/.config/dunst/dunstrc &
-
-# VMware support
-vmware-user &
 
 # WM name
 wmname LG3D &

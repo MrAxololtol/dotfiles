@@ -4,7 +4,7 @@
 
 # terminal emulator for aesthetics
 super + Return
-	kitty --override background_opacity=0.75
+	PYTHONPYCACHEPREFIX="$HOME/.cache/kitty-pyc" kitty --override background_opacity=0.75
 
 # terminal emulator for colored output tools
 super + ctrl + Return
@@ -239,7 +239,7 @@ super + shift + s
     flameshot gui
 # Toggle fullscreen
 super + f
-    bspc node -t \$(bspc query -N -n .focused.fullscreen >/dev/null && echo tiled || echo fullscreen)
+    bspc node -t '~fullscreen'
 
 # Brightness
 XF86MonBrightnessUp
