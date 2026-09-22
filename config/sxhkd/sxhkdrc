@@ -258,9 +258,9 @@ XF86AudioLowerVolume
 XF86AudioMute
     pactl set-sink-mute @DEFAULT_SINK@ toggle
 
-# >>> deepseek-chan >>>
+# >>> mochi >>>
 super + p
-    deepseek-chan --summon
+    mochi --summon
 super + alt + button1
-    deepseek-chan ask --hover
-# <<< deepseek-chan <<<
+    mochi ask --hover
+# <<< mochi <<<
